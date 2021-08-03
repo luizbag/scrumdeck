@@ -13,14 +13,13 @@ var app = express();
 
 const server = http.createServer(app);
 
-const io = socketio(server, {
-    cors: {
-        origins: '*',
-    }
-});
+const io = socketio(server);
 
 io.on('connection', (client) => {
     console.log('Client connected...');
+    client.on('new_game', (game) => {
+        console.log(game);
+    });
 });
 
 app.use(logger('dev'));

@@ -2,7 +2,7 @@
   <div id="app" class="container">
     <div class="row">
       <h1 v-if="!game">New Game</h1>
-      <h1 v-else>{{ game }}</h1>
+      <h1 v-else>{{ game.name }}</h1>
     </div>
     <div v-if="game">
       <div v-if="person">
@@ -24,6 +24,7 @@
   import People from './components/People'
   import Person from './components/Person'
   import NewGame from './components/NewGame'
+  import { uuid } from 'vue-uuid'
 
   export default {
     name: 'App',
@@ -32,6 +33,11 @@
       People,
       Person,
       NewGame
+    },
+    sockets: {
+      connect() {
+        console.log('Connected');
+      }
     },
     data() {
       return {
@@ -71,7 +77,10 @@
       },
       newGame(name) {
         console.log(name)
-        this.game=name
+        this.game = {
+          name: name,
+          uuid: this.$uuid.v5()
+        }
       }
     }
   }
