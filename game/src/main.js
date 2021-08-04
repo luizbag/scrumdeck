@@ -8,8 +8,10 @@ Vue.config.productionTip = false
 Vue.use(UUID)
 Vue.use(new VueSocketIO({
   debug: true,
-  connection: socketio('/')
+  connection: socketio()
 }));
+
+localStorage.debug = '*'
 
 new Vue({
   render: h => h(App),

@@ -24,7 +24,6 @@
   import People from './components/People'
   import Person from './components/Person'
   import NewGame from './components/NewGame'
-  import { uuid } from 'vue-uuid'
 
   export default {
     name: 'App',
@@ -34,14 +33,29 @@
       Person,
       NewGame
     },
-    sockets: {
-      connect() {
-        console.log('Connected');
+    socket: {
+      events: {
+        connect() {
+          this.connected();
+        },
+
+        game_created(game) {
+          console.log(game);
+          this.gameCreated(game);
+        },
+
+        card_selected(data) {
+          console.log(data);
+          this.cardSelected(data);
+        }
       }
     },
     data() {
       return {
-        game: null,
+        game: {
+          id: 12345,
+          name: 'MIS'
+        },
         blocked: false,
         person: null,
         people: [{
@@ -65,6 +79,13 @@
           if(p.name === person.name)
             p.selected = person.selected
         })
+        this.$socket.emit('card_selected', {id: this.game.id, card: person.selected, person: person.name});
+      },
+      cardSelected (data) {
+        console.log(data);
+      },
+      connected() {
+        console.log('Connected to server!')
       },
       reset () {
         this.blocked=false
@@ -77,9 +98,12 @@
       },
       newGame(name) {
         console.log(name)
+        this.$socket.emit('new_game', name);
+      },
+      gameCreated(game) {
         this.game = {
-          name: name,
-          uuid: this.$uuid.v5()
+          name: game.name,
+          uuid: game.uuid
         }
       }
     }

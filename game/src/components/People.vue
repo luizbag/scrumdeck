@@ -1,6 +1,6 @@
 <template>
   <div id="people" class="row">
-    <div class="col" v-for="person in people">
+    <div class="col" v-for="person in people" :key="person.name">
       <div class="card">
         <div class="card-body text-center">
           <h5 class="card-title">{{person.name}} <i v-show="person.selected" class="bi bi-check-circle"></i></h5>
@@ -10,7 +10,7 @@
     </div>
     <div class="row">
       <div class="col">
-        <button :disabled="!isEverybodyReady()" class="btn btn-secondary" @click="showCards()">Show Cards</button>&nbsp
+        <button :disabled="!isEverybodyReady()" class="btn btn-secondary" @click="showCards()">Show Cards</button>&nbsp;
         <button class="btn btn-dark" @click="reset()">Reset</button>
       </div>
     </div>
@@ -39,7 +39,7 @@
       },
       isEverybodyReady() {
         return true
-        return this.people.every((person) => { return person.selected ? true : false })
+        //return this.people.every((person) => { return person.selected ? true : false })
       }
     },
 

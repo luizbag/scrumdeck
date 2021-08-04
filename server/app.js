@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var http = require('http');
 var socketio = require('socket.io');
+var uuid = require('uuid');
 
 var indexRouter = require('./routes/index');
 //var usersRouter = require('./routes/users');
@@ -15,10 +16,27 @@ const server = http.createServer(app);
 
 const io = socketio(server);
 
-io.on('connection', (client) => {
+io.on('connection', (socket) => {
     console.log('Client connected...');
-    client.on('new_game', (game) => {
+    socket.on('new_game', (name) => {
+        console.log(name);
+        const id = uuid.v4();
+        var game = {
+            name: name,
+            id: id
+        };
         console.log(game);
+        socket.join(id);
+        io.to(id).emit('game_create', game);
+    });
+
+    socket.on('card_selected', (data) => {
+        console.log(data);
+        io.to(data.id).emit('card_selected', {card: data.card, person: data.person});
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected...');
     });
 });
 
