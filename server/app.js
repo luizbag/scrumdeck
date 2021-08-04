@@ -14,7 +14,13 @@ var app = express();
 
 const server = http.createServer(app);
 
-const io = socketio(server);
+const io = socketio(server, {
+    cors: {
+        origin: "http://localhost:8080",
+        methods: ["GET", "POST"]
+    },
+    path: '/socket'
+});
 
 io.on('connection', (socket) => {
     console.log('Client connected...');
@@ -31,7 +37,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('card_selected', (data) => {
-        console.log(data);
+        console.log('card_selected', data);
         io.to(data.id).emit('card_selected', {card: data.card, person: data.person});
     });
 

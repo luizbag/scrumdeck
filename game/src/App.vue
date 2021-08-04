@@ -33,48 +33,35 @@
       Person,
       NewGame
     },
-    socket: {
-      events: {
-        connect() {
-          this.connected();
-        },
+    sockets: {
+      async connect() {
+        this.connected();
+      },
 
-        game_created(game) {
-          console.log(game);
-          this.gameCreated(game);
-        },
+      async game_created(game) {
+        console.log("game_created", game);
+        this.gameCreated(game);
+      },
 
-        card_selected(data) {
-          console.log(data);
-          this.cardSelected(data);
-        }
+      async card_selected(data) {
+        console.log("card_selected", data);
+        this.cardSelected(data);
       }
     },
     data() {
       return {
-        game: {
-          id: 12345,
-          name: 'MIS'
-        },
+        game: null,
         blocked: false,
         person: null,
-        people: [{
-          name: 'Luiz',
-          selected: 5,
-        },
-        {
-          name: 'Fernando',
-          selected: 8,
-        },
-        {
-          name: 'Hugo',
-          selected: 3,
-        }]
+        people: []
       }
     },
     methods: {
       selected (person) {
-        console.log(person)
+        console.log("selected", person)
+        console.log("game", this.game)
+        console.log("people", this.people)
+        console.log("socket", this.$socket)
         this.people.forEach((p) => {
           if(p.name === person.name)
             p.selected = person.selected
@@ -95,12 +82,14 @@
       },
       nameEntered(person) {
         this.person = person;
+        this.people.push(person);
       },
       newGame(name) {
         console.log(name)
         this.$socket.emit('new_game', name);
       },
       gameCreated(game) {
+        console.log(game)
         this.game = {
           name: game.name,
           uuid: game.uuid
