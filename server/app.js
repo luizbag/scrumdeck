@@ -30,7 +30,8 @@ io.on('connection', (socket) => {
         const id = uuid.v4();
         var game = {
             name: name,
-            id: id
+            id: id,
+            people: []
         };
         console.log(game);
         games.push(game);
@@ -39,15 +40,13 @@ io.on('connection', (socket) => {
         socket.emit('game_created', game);
     });
 
-    socket.on('get_game', (id) => {
-        console.log('get_game', id);
-        console.log('games', games);
-        var filtered_games = games.filter((game) => {return game.id === id});
-        console.log('filtered_games', filtered_games)
+    socket.on('join_game', (data) => {
+        console.log(data);
+        var filtered_games = games.filter((game) => {return game.id === data.game});
         if(filtered_games.length === 1) {
-            socket.emit('game_found', filtered_games[0])
-        } else {
-            socket.emit('game_not_found', id);
+            socket.join(filtered_games[0].id)
+            filtered_games[0].people.push(data.person)
+            io.to(filtered_games[0].id).emit('joined_game', filtered_games[0])
         }
     });
 

@@ -38,8 +38,7 @@
         this.$emit('reset')
       },
       isEverybodyReady() {
-        return true
-        //return this.people.every((person) => { return person.selected ? true : false })
+        return this.people.every((person) => { return person.selected ? true : false })
       }
     },
 

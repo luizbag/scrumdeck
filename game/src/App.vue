@@ -46,9 +46,10 @@
         this.setGame(game);
       },
 
-      game_found(game) {
-        console.log("game_found", game);
+      joined_game(game) {
+        console.log("joined_game", game);
         this.setGame(game);
+        this.setPeople(game.people);
       },
 
       card_selected(data) {
@@ -69,7 +70,6 @@
         console.log("selected", person)
         console.log("game", this.game)
         console.log("people", this.people)
-        console.log("socket", this.$socket)
         this.people.forEach((p) => {
           if(p.name === person.name)
             p.selected = person.selected
@@ -77,16 +77,18 @@
         this.$socket.client.emit('card_selected', {id: this.game.id, card: person.selected, person: person.name});
       },
       cardSelected (data) {
-        console.log(data);
+        console.log('cardSelected', data);
+        this.people.forEach((p) => {
+          console.log('p', p)
+          if(p.name === data.person) {
+            console.log(true)
+            p.selected = data.card
+          }
+        })
+        console.log(this.people)
       },
       connected() {
         console.log('Connected to server!')
-        console.log(window.location.pathname);
-        if(window.location.pathname !== '/') {
-          var id = window.location.pathname.slice(1);
-          console.log(id);
-          this.$socket.client.emit('get_game', id);
-        }
       },
       reset () {
         this.blocked=false
@@ -95,20 +97,38 @@
         this.blocked=true
       },
       nameEntered(person) {
+        console.log('nameEntered', person)
         this.person = person;
-        this.people.push(person);
+        var id = ''
+        if(window.location.pathname !== '/') {
+          console.log(true)
+          id = window.location.pathname.slice(1);
+        } else {
+          console.log(false)
+          id = this.game.id
+        }
+        this.$socket.client.emit('join_game', {game:id, person:person.name});
       },
       newGame(name) {
         console.log(name)
         this.$socket.client.emit('new_game', name);
       },
       setGame(game) {
-        console.log(game)
+        console.log('setGame', game)
         this.game = {
           name: game.name,
-          uuid: game.uuid,
+          id: game.id,
           url: window.location.origin + "/" + game.id
         }
+      },
+      setPeople(people) {
+        console.log('setPeople', people)
+        people.forEach((p) => {
+          this.people.push({
+            name: p
+          })
+        })
+        console.log(this.people)
       }
     }
   }
