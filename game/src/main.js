@@ -1,18 +1,17 @@
 import Vue from 'vue'
-import VueSocketIO from 'vue-socket.io'
-import SocketIO  from 'socket.io-client'
+
+import VueSocketIOExt from 'vue-socket.io-extended';
+import { io } from 'socket.io-client';
+
 import App from './App.vue'
 
-localStorage.debug = '*'
+//localStorage.debug = '*'
 
 Vue.config.productionTip = false
 
-Vue.use(new VueSocketIO({
-  debug: true,
-  connection: SocketIO('http://localhost:3000',{
-    path: '/socket'
-  })
-}))
+const socket = io('http://localhost:3000');
+
+Vue.use(VueSocketIOExt, socket);
 
 new Vue({
   render: h => h(App),

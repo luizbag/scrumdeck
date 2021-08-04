@@ -1,7 +1,7 @@
 <template>
   <div id="cards" class="row">
     <h3>Hi, {{ person.name }}. Pick your card!</h3>
-    <div class="col" v-for="choice in available_choices">
+    <div class="col" v-for="choice in available_choices" :key="choice">
       <button :disabled="blocked"  @click="selected(choice)" type="button" class="btn btn-primary">{{choice}}</button>
     </div>
   </div>

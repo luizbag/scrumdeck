@@ -14,31 +14,46 @@ var app = express();
 
 const server = http.createServer(app);
 
+var games = []
+
 const io = socketio(server, {
     cors: {
         origin: "http://localhost:8080",
         methods: ["GET", "POST"]
-    },
-    path: '/socket'
+    }
 });
 
 io.on('connection', (socket) => {
     console.log('Client connected...');
     socket.on('new_game', (name) => {
-        console.log(name);
+        console.log('new_game', name);
         const id = uuid.v4();
         var game = {
             name: name,
             id: id
         };
         console.log(game);
+        games.push(game);
+        console.log(games);
         socket.join(id);
-        io.to(id).emit('game_create', game);
+        socket.emit('game_created', game);
+    });
+
+    socket.on('get_game', (id) => {
+        console.log('get_game', id);
+        console.log('games', games);
+        var filtered_games = games.filter((game) => {return game.id === id});
+        console.log('filtered_games', filtered_games)
+        if(filtered_games.length === 1) {
+            socket.emit('game_found', filtered_games[0])
+        } else {
+            socket.emit('game_not_found', id);
+        }
     });
 
     socket.on('card_selected', (data) => {
         console.log('card_selected', data);
-        io.to(data.id).emit('card_selected', {card: data.card, person: data.person});
+        socket.to(data.id).emit('card_selected', {card: data.card, person: data.person});
     });
 
     socket.on('disconnect', () => {

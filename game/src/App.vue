@@ -1,8 +1,11 @@
 <template>
   <div id="app" class="container">
-    <div class="row">
-      <h1 v-if="!game">New Game</h1>
-      <h1 v-else>{{ game.name }}</h1>
+    <div v-if="!game" class="row">
+      <h1>New Game</h1>
+    </div>
+    <div v-else class="row">
+      <h1>{{ game.name }}</h1>
+      <p>Invite someone: <a v-bind:href=game.url>{{ game.url }}</a></p>
     </div>
     <div v-if="game">
       <div v-if="person">
@@ -34,16 +37,21 @@
       NewGame
     },
     sockets: {
-      async connect() {
+      connect() {
         this.connected();
       },
 
-      async game_created(game) {
+      game_created(game) {
         console.log("game_created", game);
-        this.gameCreated(game);
+        this.setGame(game);
       },
 
-      async card_selected(data) {
+      game_found(game) {
+        console.log("game_found", game);
+        this.setGame(game);
+      },
+
+      card_selected(data) {
         console.log("card_selected", data);
         this.cardSelected(data);
       }
@@ -66,13 +74,19 @@
           if(p.name === person.name)
             p.selected = person.selected
         })
-        this.$socket.emit('card_selected', {id: this.game.id, card: person.selected, person: person.name});
+        this.$socket.client.emit('card_selected', {id: this.game.id, card: person.selected, person: person.name});
       },
       cardSelected (data) {
         console.log(data);
       },
       connected() {
         console.log('Connected to server!')
+        console.log(window.location.pathname);
+        if(window.location.pathname !== '/') {
+          var id = window.location.pathname.slice(1);
+          console.log(id);
+          this.$socket.client.emit('get_game', id);
+        }
       },
       reset () {
         this.blocked=false
@@ -86,13 +100,14 @@
       },
       newGame(name) {
         console.log(name)
-        this.$socket.emit('new_game', name);
+        this.$socket.client.emit('new_game', name);
       },
-      gameCreated(game) {
+      setGame(game) {
         console.log(game)
         this.game = {
           name: game.name,
-          uuid: game.uuid
+          uuid: game.uuid,
+          url: window.location.origin + "/" + game.id
         }
       }
     }
