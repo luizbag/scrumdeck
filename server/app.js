@@ -8,7 +8,6 @@ var socketio = require('socket.io');
 var uuid = require('uuid');
 
 var indexRouter = require('./routes/index');
-//var usersRouter = require('./routes/users');
 
 var app = express();
 
@@ -36,8 +35,25 @@ io.on('connection', (socket) => {
         console.log(game);
         games.push(game);
         console.log(games);
-        socket.join(id);
         socket.emit('game_created', game);
+    });
+
+    socket.on('get_game', (id) => {
+        console.log(id);
+        var filtered_games = games.filter((game) => { return game.id === id});
+        if(filtered_games.length === 1) {
+            socket.emit('game_found', filtered_games[0]);
+        }
+    });
+
+    socket.on('reset_game', (id) => {
+        console.log('reset_game', id);
+        console.log('games', games);
+        var filtered_games = games.filter((game) => { return game.id === id});
+        console.log('filtered_games', filtered_games);
+        if(filtered_games.length === 1) {
+            socket.to(filtered_games[0].id).emit('game_reset');
+        }
     });
 
     socket.on('join_game', (data) => {
@@ -45,14 +61,19 @@ io.on('connection', (socket) => {
         var filtered_games = games.filter((game) => {return game.id === data.game});
         if(filtered_games.length === 1) {
             socket.join(filtered_games[0].id)
-            filtered_games[0].people.push(data.person)
+            var p = {
+                name: data.person,
+                id: socket.id
+            }
+            filtered_games[0].people.push(p)
             io.to(filtered_games[0].id).emit('joined_game', filtered_games[0])
         }
     });
 
     socket.on('card_selected', (data) => {
         console.log('card_selected', data);
-        socket.to(data.id).emit('card_selected', {card: data.card, person: data.person});
+        console.log('rooms', socket.rooms);
+        io.to(data.id).emit('card_selected', {card: data.card, person: data.person});
     });
 
     socket.on('disconnect', () => {

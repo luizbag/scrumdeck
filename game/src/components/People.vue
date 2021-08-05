@@ -10,8 +10,8 @@
     </div>
     <div class="row">
       <div class="col">
-        <button :disabled="!isEverybodyReady()" class="btn btn-secondary" @click="showCards()">Show Cards</button>&nbsp;
-        <button class="btn btn-dark" @click="reset()">Reset</button>
+        <button v-bind:disabled="!isEverybodyReady()" class="btn btn-primary" @click="showCards()">Show Cards</button>&nbsp;
+        <button class="btn btn-secondary" @click="reset(false)">Reset</button>
       </div>
     </div>
   </div>
@@ -24,21 +24,28 @@
     props: {
       people: Array
     },
-
+    sockets: {
+      game_reset() {
+        console.log('game_reset');
+        this.reset(true);
+      }
+    },
     methods: {
       showCards () {
         this.show_cards = true
         this.$emit('cards_shown')
       },
-      reset() {
+      reset(fromServer) {
+        console.log('reset');
         this.show_cards = false
         this.people.forEach((person) => {
           person.selected = null
         })
-        this.$emit('reset')
+        this.$emit('reset', fromServer)
       },
       isEverybodyReady() {
-        return this.people.every((person) => { return person.selected ? true : false })
+        return true
+        //return this.people.every((person) => { return person.selected ? true : false })
       }
     },
 
@@ -50,5 +57,5 @@
   }
 </script>
 
-<style lang="css" scoped>
+<style lang="scss" scoped>
 </style>
