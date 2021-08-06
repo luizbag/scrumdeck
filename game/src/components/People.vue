@@ -10,7 +10,7 @@
     </div>
     <div class="row">
       <div class="col">
-        <button v-bind:disabled="!isEverybodyReady()" class="btn btn-primary" @click="showCards()">Show Cards</button>&nbsp;
+        <button v-bind:disabled="!isEverybodyReady()" class="btn btn-primary" @click="showCards(false)">Show Cards</button>&nbsp;
         <button class="btn btn-secondary" @click="reset(false)">Reset</button>
       </div>
     </div>
@@ -28,12 +28,16 @@
       game_reset() {
         console.log('game_reset');
         this.reset(true);
+      },
+      show_cards() {
+        console.log('show_cards');
+        this.showCards(true);
       }
     },
     methods: {
-      showCards () {
+      showCards (fromServer) {
         this.show_cards = true
-        this.$emit('cards_shown')
+        this.$emit('cards_shown', fromServer)
       },
       reset(fromServer) {
         console.log('reset');
@@ -44,14 +48,14 @@
         this.$emit('reset', fromServer)
       },
       isEverybodyReady() {
-        return true
-        //return this.people.every((person) => { return person.selected ? true : false })
+        //return true
+        return this.people.every((person) => { return person.selected ? true : false })
       }
     },
 
     data () {
       return {
-        show_cards: true,
+        show_cards: false,
       }
     }
   }

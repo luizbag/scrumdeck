@@ -102,8 +102,10 @@
         if(!fromServer)
           this.$socket.client.emit('reset_game', this.game.id);
       },
-      cardsShown() {
+      cardsShown(fromServer) {
         this.blocked=true
+        if(!fromServer)
+          this.$socket.client.emit('show_cards', this.game.id);
       },
       nameEntered(person) {
         console.log('nameEntered', person)
