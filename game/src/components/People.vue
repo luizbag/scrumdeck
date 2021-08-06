@@ -1,6 +1,6 @@
 <template>
   <div id="people" class="row">
-    <div class="col" v-for="person in people">
+    <div class="col" v-for="person in people" :key="person.name">
       <div class="card">
         <div class="card-body text-center">
           <h5 class="card-title">{{person.name}} <i v-show="person.selected" class="bi bi-check-circle"></i></h5>
@@ -10,8 +10,8 @@
     </div>
     <div class="row">
       <div class="col">
-        <button :disabled="!isEverybodyReady()" class="btn btn-secondary" @click="showCards()">Show Cards</button>&nbsp
-        <button class="btn btn-dark" @click="reset()">Reset</button>
+        <button v-bind:disabled="!isEverybodyReady()" class="btn btn-primary" @click="showCards(false)">Show Cards</button>&nbsp;
+        <button class="btn btn-secondary" @click="reset(false)">Reset</button>
       </div>
     </div>
   </div>
@@ -24,32 +24,42 @@
     props: {
       people: Array
     },
-
-    methods: {
-      showCards () {
-        this.show_cards = true
-        this.$emit('cards_shown')
+    sockets: {
+      game_reset() {
+        console.log('game_reset');
+        this.reset(true);
       },
-      reset() {
+      show_cards() {
+        console.log('show_cards');
+        this.showCards(true);
+      }
+    },
+    methods: {
+      showCards (fromServer) {
+        this.show_cards = true
+        this.$emit('cards_shown', fromServer)
+      },
+      reset(fromServer) {
+        console.log('reset');
         this.show_cards = false
         this.people.forEach((person) => {
           person.selected = null
         })
-        this.$emit('reset')
+        this.$emit('reset', fromServer)
       },
       isEverybodyReady() {
-        return true
+        //return true
         return this.people.every((person) => { return person.selected ? true : false })
       }
     },
 
     data () {
       return {
-        show_cards: true,
+        show_cards: false,
       }
     }
   }
 </script>
 
-<style lang="css" scoped>
+<style lang="scss" scoped>
 </style>

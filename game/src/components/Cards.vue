@@ -1,8 +1,8 @@
 <template>
   <div id="cards" class="row">
     <h3>Hi, {{ person.name }}. Pick your card!</h3>
-    <div class="col" v-for="choice in available_choices">
-      <button :disabled="blocked"  @click="selected(choice)" type="button" class="btn btn-primary">{{choice}}</button>
+    <div class="col" v-for="choice in available_choices" :key="choice">
+      <button v-bind:disabled="blocked" @click="selected(choice)" type="button" class="btn btn-primary">{{ choice }}</button>
     </div>
   </div>
 </template>
@@ -18,8 +18,11 @@
 
     methods: {
       selected (choice) {
-        this.person.selected = choice
-        this.$emit('selected', this.person)
+        var p = {
+          name: this.person.name,
+          selected: choice
+        }
+        this.$emit('selected', p)
       }
     },
 

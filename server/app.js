@@ -3,29 +3,104 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var sassMiddleware = require('node-sass-middleware');
 var http = require('http');
 var socketio = require('socket.io');
+var uuid = require('uuid');
 
 var indexRouter = require('./routes/index');
-//var usersRouter = require('./routes/users');
 
 var app = express();
 
 const server = http.createServer(app);
 
-const io = socketio(server);
+var games = []
+
+const io = socketio(server, {
+    cors: {
+        origin: "http://localhost:8080",
+        methods: ["GET", "POST"]
+    }
+});
+
+var getGame = (id) => {
+    var filtered_games = games.filter((game) => { return game.id === id});
+    if(filtered_games.length === 1) {
+        return filtered_games[0]
+    } else {
+        return null
+    }
+}
+
+io.on('connection', (socket) => {
+    console.log('Client connected...');
+
+    socket.on('new_game', (name) => {
+        console.log('new_game', name);
+        const id = uuid.v4();
+        var game = {
+            name: name,
+            id: id,
+            people: []
+        };
+        console.log(game);
+        games.push(game);
+        console.log(games);
+        socket.emit('game_created', game);
+    });
+
+    socket.on('get_game', (id) => {
+        console.log(id);
+        var game = getGame(id)
+        if(game) {
+            socket.emit('game_found', game);
+        }
+    });
+
+    socket.on('show_cards', (id) => {
+        console.log('show_cards', id);
+        var game = getGame(id);
+        if(game)
+            socket.to(game.id).emit('show_cards');
+    });
+
+    socket.on('reset_game', (id) => {
+        console.log('reset_game', id);
+        var game = getGame(id);
+        if(game) {
+            socket.to(game.id).emit('game_reset');
+        }
+    });
+
+    socket.on('join_game', (data) => {
+        console.log(data);
+        var game = getGame(data.game);
+        if(game) {
+            socket.join(game.id)
+            var p = {
+                name: data.person,
+                id: socket.id
+            }
+            game.people.push(p)
+            io.to(game.id).emit('joined_game', game)
+        }
+    });
+
+    socket.on('card_selected', (data) => {
+        console.log('card_selected', data);
+        var game = getGame(data.id);
+        if(game)
+            io.to(game.id).emit('card_selected', {card: data.card, person: data.person});
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected...');
+    });
+});
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(sassMiddleware({
-  src: path.join(__dirname, 'public'),
-  dest: path.join(__dirname, 'public'),
-  indentedSyntax: true, // true = .sass and false = .scss
-  sourceMap: true
-}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
