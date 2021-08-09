@@ -7,8 +7,6 @@ var http = require('http');
 var socketio = require('socket.io');
 var db = require('./db');
 
-var indexRouter = require('./routes/index');
-
 var app = express();
 
 const server = http.createServer(app);
