@@ -88,6 +88,7 @@
       },
       connected() {
         var g = this.getGameFromPath()
+        console.log("game", g);
         if(g) {
           this.$socket.client.emit('get_game', g)
         }
@@ -129,7 +130,7 @@
       },
       getGameFromPath() {
         if(window.location.pathname !== '/') {
-          return window.location.pathname.slice(1);
+          return window.location.pathname.replace(/\//g,'');
         } else {
           return null
         }
