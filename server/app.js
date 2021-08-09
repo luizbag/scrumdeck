@@ -24,13 +24,11 @@ io.on('connection', (socket) => {
     console.log('Client connected...');
 
     socket.on('new_game', (name) => {
-        console.log('new_game', name);
         var game = db.createGame(name);
         socket.emit('game_created', game);
     });
 
     socket.on('get_game', (id) => {
-        console.log(id);
         var game = db.getGame(id)
         if(game) {
             socket.emit('game_found', game);
@@ -38,14 +36,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('show_cards', (id) => {
-        console.log('show_cards', id);
         var game = db.getGame(id);
         if(game)
             socket.to(game.id).emit('show_cards');
     });
 
     socket.on('reset_game', (id) => {
-        console.log('reset_game', id);
         var game = db.getGame(id);
         if(game) {
             socket.to(game.id).emit('game_reset');
@@ -53,7 +49,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('join_game', (data) => {
-        console.log(data);
         var game = db.getGame(data.game);
         if(game) {
             socket.join(game.id)
@@ -67,15 +62,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('card_selected', (data) => {
-        console.log('card_selected', data);
-        console.log('socket', socket);
         var game = db.getGame(data.id);
         if(game)
             io.to(game.id).emit('card_selected', {card: data.card, person: data.person});
     });
 
     socket.on('disconnect', () => {
-        console.log('Client disconnected...');
         var games = db.getGameByPerson(socket.id);
         games.forEach((game) => {
             db.removePerson(game.id, socket.id);

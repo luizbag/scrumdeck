@@ -42,28 +42,23 @@
       },
 
       game_created(game) {
-        console.log("game_created", game);
         this.setGame(game);
       },
 
       joined_game(game) {
-        console.log("joined_game", game);
         this.setGame(game);
         this.setPeople(game.people);
       },
 
       person_disconnected(personId) {
-        console.log("person_disconnected", personId);
         this.personDisconnected(personId);
       },
 
       card_selected(data) {
-        console.log("card_selected", data);
         this.cardSelected(data);
       },
 
       game_found(game) {
-        console.log("game_found", game);
         this.setGame(game);
         this.setPeople(game.people);
       }
@@ -79,13 +74,10 @@
     methods: {
       selected (person) {
         var data = {id: this.game.id, card: person.selected, person: person.name}
-        console.log("data", data)
         this.$socket.client.emit('card_selected', data)
       },
       cardSelected (data) {
-        console.log('cardSelected', data);
         this.people.forEach((p) => {
-          console.log('p', p)
           if(p.name === data.person) {
             console.log(true)
             p.selected = data.card
@@ -95,18 +87,15 @@
         console.log(this.people)
       },
       connected() {
-        console.log('Connected to server!')
         var g = this.getGameFromPath()
         if(g) {
           this.$socket.client.emit('get_game', g)
         }
       },
       personDisconnected(id) {
-        console.log("personDisconnected");
         this.people = this.people.filter((p) => { return p.id !== id });
       },
       reset (fromServer) {
-        console.log('reset');
         this.blocked=false
         if(!fromServer)
           this.$socket.client.emit('reset_game', this.game.id);
@@ -117,7 +106,6 @@
           this.$socket.client.emit('show_cards', this.game.id);
       },
       nameEntered(person) {
-        console.log('nameEntered', person)
         this.person = person;
         this.$socket.client.emit('join_game', {game:this.game.id, person:person.name});
       },
@@ -126,7 +114,6 @@
         this.$socket.client.emit('new_game', name);
       },
       setGame(game) {
-        console.log('setGame', game)
         this.game = {
           name: game.name,
           id: game.id,
@@ -134,7 +121,6 @@
         }
       },
       setPeople(people) {
-        console.log('setPeople', people)
         this.people = []
         people.forEach((p) => {
           this.people.push(p)
