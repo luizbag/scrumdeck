@@ -52,6 +52,11 @@
         this.setPeople(game.people);
       },
 
+      person_disconnected(personId) {
+        console.log("person_disconnected", personId);
+        this.personDisconnected(personId);
+      },
+
       card_selected(data) {
         console.log("card_selected", data);
         this.cardSelected(data);
@@ -95,6 +100,10 @@
         if(g) {
           this.$socket.client.emit('get_game', g)
         }
+      },
+      personDisconnected(id) {
+        console.log("personDisconnected");
+        this.people = this.people.filter((p) => { return p.id !== id });
       },
       reset (fromServer) {
         console.log('reset');
